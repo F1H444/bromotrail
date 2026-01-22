@@ -16,19 +16,18 @@ return new class extends Migration
             $table->string('username', 100)->unique();
             $table->string('password', 255);
             $table->enum('role', ['Admin', 'Owner']);
-            // Timestamps are not in the SQL but good practice in Laravel. 
-            // I will omitted them to strictly match SQL unless needed for models.
-            // Adding them as nullable is a safe bet if models expect them, but SQL didn't have them.
-            // User request was specific about SQL. I will stick to SQL columns.
         });
 
         Schema::create('pelanggan', function (Blueprint $table) {
             $table->id();
             $table->string('nama_lengkap', 255);
+            $table->string('email', 255)->unique();
+            $table->string('password', 255); 
             $table->string('no_wa', 20);
             $table->string('no_ktp_sim', 50);
             $table->string('kontak_darurat', 50)->nullable();
             $table->text('alamat_asal')->nullable();
+            $table->timestamps(); 
         });
 
         Schema::create('motor', function (Blueprint $table) {
@@ -62,6 +61,7 @@ return new class extends Migration
             $table->dateTime('tgl_kembali');
             $table->decimal('total_biaya', 15, 2)->default(0);
             $table->enum('status_sewa', ['Booking', 'Aktif', 'Selesai', 'Dibatalkan'])->default('Booking');
+            $table->timestamps(); 
         });
 
         Schema::create('detail_sewa', function (Blueprint $table) {

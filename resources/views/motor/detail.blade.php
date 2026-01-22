@@ -27,14 +27,9 @@
 
                     <div class="grid grid-cols-2 gap-6 py-8 border-y border-zinc-100 mb-8">
                         <div>
-                            <span class="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Spek
-                                Mesin</span>
-                            <span class="text-lg font-bold text-zinc-900">{{ $motor->spek_mesin }}</span>
-                        </div>
-                        <div>
-                            <span class="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Kapasitas
-                                Tangki</span>
-                            <span class="text-lg font-bold text-zinc-900">{{ $motor->kapasitas_tangki }}</span>
+                            <span class="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Stok
+                                Tersedia</span>
+                            <span class="text-lg font-bold text-zinc-900">{{ $motor->stok }} Unit</span>
                         </div>
                         <div>
                             <span class="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Plat

@@ -24,12 +24,8 @@
         <!-- Specs -->
         <div class="flex items-center gap-4 mb-6 text-xs text-zinc-400">
             <span class="flex items-center gap-1">
-                <i class="fa-solid fa-cog"></i>
-                {{ $motor->spek_mesin }}
-            </span>
-            <span class="flex items-center gap-1">
-                <i class="fa-solid fa-gas-pump"></i>
-                {{ $motor->kapasitas_tangki }}L
+                <i class="fa-solid fa-layer-group"></i>
+                Stok: {{ $motor->stok }} Unit
             </span>
         </div>
 
@@ -42,7 +38,7 @@
                     <span class="text-sm font-normal text-zinc-400">IDR</span>
                 </span>
             </div>
-            <a href="{{ route('motor.show', $motor->slug) }}"
+            <a href="{{ route('motor.show', $motor) }}"
                 class="px-6 py-3 bg-zinc-900 text-white text-xs font-bold rounded-sm hover:bg-zinc-800 transition-all tracking-widest uppercase shadow-lg hover:shadow-zinc-900/30">
                 Detail
             </a>

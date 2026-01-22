@@ -36,6 +36,8 @@
                             <th class="py-4 px-4 font-bold text-zinc-500 uppercase text-xs tracking-wider text-right">
                                 Harga/Hari</th>
                             <th class="py-4 px-4 font-bold text-zinc-500 uppercase text-xs tracking-wider text-center">
+                                Stok</th>
+                            <th class="py-4 px-4 font-bold text-zinc-500 uppercase text-xs tracking-wider text-center">
                                 Status</th>
                             <th class="py-4 px-4 font-bold text-zinc-500 uppercase text-xs tracking-wider text-right">Aksi
                             </th>
@@ -61,6 +63,9 @@
                                 </td>
                                 <td class="py-4 px-4 font-mono text-sm text-right">
                                     IDR {{ number_format($motor->harga_sewa_per_hari, 0, ',', '.') }}
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    <span class="font-bold text-zinc-900">{{ $motor->stok }}</span>
                                 </td>
                                 <td class="py-4 px-4 text-center">
                                     <span
@@ -124,6 +129,7 @@
                             <p class="font-mono text-sm font-bold text-zinc-700">
                                 IDR {{ number_format($motor->harga_sewa_per_hari, 0, ',', '.') }} / hari
                             </p>
+                            <p class="text-xs text-zinc-500 mt-1">Stok: <b>{{ $motor->stok }}</b></p>
                         </div>
                     </div>
                     <div class="flex gap-2 mt-4 pt-4 border-t border-zinc-100">

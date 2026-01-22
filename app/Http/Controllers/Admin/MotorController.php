@@ -25,6 +25,7 @@ class MotorController extends Controller
         $request->validate([
             'nama_motor' => 'required',
             'harga_sewa' => 'required|numeric',
+            'stok' => 'required|integer|min:0',
             'status_ketersediaan' => 'required',
             'deskripsi' => 'nullable|string|max:5000',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Changed to file validation
@@ -41,6 +42,7 @@ class MotorController extends Controller
             'slug' => \Illuminate\Support\Str::slug($request->nama_motor . '-' . rand(1000, 9999)),
             'plat_nomor' => 'N ' . rand(1000, 9999) . ' XYZ',
             'harga_sewa_per_hari' => $request->harga_sewa,
+            'stok' => $request->stok,
             'status_motor' => $request->status_ketersediaan,
             'gambar_url' => $gambarUrl,
             'deskripsi_singkat' => $request->deskripsi,
@@ -59,6 +61,7 @@ class MotorController extends Controller
         $request->validate([
             'nama_motor' => 'required',
             'harga_sewa' => 'required|numeric',
+            'stok' => 'required|integer|min:0',
             'status_ketersediaan' => 'required',
             'deskripsi' => 'nullable|string|max:5000',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -67,6 +70,7 @@ class MotorController extends Controller
         $data = [
             'merk_tipe' => $request->nama_motor,
             'harga_sewa_per_hari' => $request->harga_sewa,
+            'stok' => $request->stok,
             'status_motor' => $request->status_ketersediaan,
             'deskripsi_singkat' => $request->deskripsi,
         ];

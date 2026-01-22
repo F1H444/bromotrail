@@ -82,6 +82,15 @@ class BookingController extends Controller
             if (!$motor) {
                 throw new \Exception("Motor tidak ditemukan.");
             }
+
+            // Check Stock
+            if ($motor->stok <= 0) {
+                return redirect()->route('booking.failed')->with([
+                    'reason' => 'Maaf, stok motor ini sedang kosong.',
+                    'id_motor' => $request->id_motor
+                ]);
+            }
+
             $motorCost = $motor->harga_sewa_per_hari * $days;
 
             // 4. Calculate Additional Items Cost
@@ -127,6 +136,9 @@ class BookingController extends Controller
                     'subtotal_harga' => $data['subtotal_harga'],
                 ]);
             }
+
+            // 7. Decrement Stock
+            $motor->decrement('stok');
 
             DB::commit();
 

@@ -35,8 +35,8 @@
                                 class="fa-solid fa-user mr-2"></i> Pelanggan</h2>
                         <p class="font-bold text-lg">{{ $penyewaan->pelanggan->nama_lengkap }}</p>
                         <p class="text-zinc-500">{{ $penyewaan->pelanggan->email }}</p>
-                        <p class="text-zinc-500">{{ $penyewaan->pelanggan->no_hp }}</p>
-                        <p class="text-zinc-500 text-sm mt-2">{{ $penyewaan->pelanggan->alamat }}</p>
+                        <p class="text-zinc-500">{{ $penyewaan->pelanggan->no_wa }}</p>
+                        <p class="text-zinc-500 text-sm mt-2">{{ $penyewaan->pelanggan->alamat_asal }}</p>
                     </div>
 
                     <div class="bg-white border border-zinc-200 rounded-sm shadow-sm p-6">
@@ -48,8 +48,8 @@
                                     class="w-16 h-16 object-cover rounded bg-zinc-100">
                             @endif
                             <div>
-                                <p class="font-bold text-lg">{{ $penyewaan->motor->nama_motor }}</p>
-                                <p class="text-zinc-500">{{ $penyewaan->motor->tipe_motor }}</p>
+                                <p class="font-bold text-lg">{{ $penyewaan->motor->merk_tipe }}</p>
+                                <p class="text-zinc-500">{{ $penyewaan->motor->plat_nomor }}</p>
                             </div>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                         <tr class="border-b border-zinc-100">
                             <td class="py-4 px-4 text-zinc-500">Harga Sewa Motor (per hari)</td>
                             <td class="py-4 px-4 text-right font-mono font-bold">IDR
-                                {{ number_format($penyewaan->motor->harga_sewa, 0, ',', '.') }}
+                                {{ number_format($penyewaan->motor->harga_sewa_per_hari, 0, ',', '.') }}
                             </td>
                         </tr>
                         <tr class="border-b border-zinc-100">

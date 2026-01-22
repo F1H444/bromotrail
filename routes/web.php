@@ -61,12 +61,26 @@ Route::middleware(['auth:pelanggan'])->group(function () {
 
     // Payment protected
     Route::get('/pembayaran/{id}/create', [PembayaranController::class, 'create'])->name('pembayaran.create');
-    Route::post('/pembayaran/store', [PembayaranController::class, 'store'])->name('pembayaran.store');
+
+    // PERBAIKAN DI SINI: Menambahkan '/{id}' agar sesuai dengan controller
+    Route::post('/pembayaran/{id}/store', [PembayaranController::class, 'store'])->name('pembayaran.store');
 });
 
 Route::get('/booking/success/{id}', [BookingController::class, 'success'])->name('booking.success');
 Route::get('/booking/failed', [BookingController::class, 'failed'])->name('booking.failed');
 Route::get('/pembayaran/{id}/success', [PembayaranController::class, 'success'])->name('pembayaran.success');
+
+// Midtrans Routes
+use App\Http\Controllers\MidtransController;
+
+// Webhook untuk notifikasi dari Midtrans
+Route::post('/midtrans/notification', [MidtransController::class, 'notification'])->name('midtrans.notification');
+
+// Redirect URLs dari Midtrans
+Route::get('/midtrans/finish', [MidtransController::class, 'finish'])->name('midtrans.finish');
+Route::get('/midtrans/unfinish', [MidtransController::class, 'unfinish'])->name('midtrans.unfinish');
+Route::get('/midtrans/error', [MidtransController::class, 'error'])->name('midtrans.error');
+
 
 Route::get('/cara-sewa', function () {
     return view('cara-sewa');

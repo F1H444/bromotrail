@@ -30,7 +30,19 @@ class PenyewaanController extends Controller
         ]);
 
         $penyewaan = Penyewaan::findOrFail($id);
-        $penyewaan->status_sewa = $request->status_sewa;
+        $oldStatus = $penyewaan->status_sewa;
+        $newStatus = $request->status_sewa;
+
+        // If status changes to Dibatalkan, increment stock
+        if ($oldStatus !== 'Dibatalkan' && $newStatus === 'Dibatalkan') {
+            $penyewaan->motor->increment('stok');
+        }
+        // Optional: If status was Dibatalkan and changes back to something else, decrement stock
+        elseif ($oldStatus === 'Dibatalkan' && $newStatus !== 'Dibatalkan') {
+            $penyewaan->motor->decrement('stok');
+        }
+
+        $penyewaan->status_sewa = $newStatus;
         $penyewaan->save();
 
         return redirect()->back()->with('success', 'Status penyewaan diperbarui');

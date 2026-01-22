@@ -14,7 +14,7 @@
             </div>
 
             <div class="bg-white border border-zinc-200 rounded-sm shadow-sm p-8">
-                <form action="{{ route('motor.update', $motor->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('motor.update', $motor) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -61,6 +61,20 @@
                                 <option value="Maintenance" {{ $motor->status_motor == 'Maintenance' ? 'selected' : '' }}>
                                     Maintenance</option>
                             </select>
+                        </div>
+
+                        <!-- Stok -->
+                        <div>
+                            <label for="stok"
+                                class="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Stok
+                                Tersedia</label>
+                            <input type="number" name="stok" id="stok" value="{{ $motor->stok }}" required
+                                min="0"
+                                class="w-full bg-zinc-50 border border-zinc-200 p-3 rounded-sm focus:outline-none focus:border-zinc-900 transition"
+                                placeholder="Contoh: 10">
+                            @error('stok')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 

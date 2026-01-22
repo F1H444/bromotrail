@@ -5,76 +5,121 @@ namespace App\Http\Controllers;
 use App\Models\Pembayaran;
 use App\Models\Penyewaan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class PembayaranController extends Controller
 {
-    public function create($id)
+    public function __construct()
     {
-        $penyewaan = Penyewaan::with('motor')->findOrFail($id);
-
-        // Prevent payment if already paid or in verification
-        if (in_array($penyewaan->status_sewa, ['Proses Verifikasi', 'Aktif', 'Selesai'])) {
-            return redirect()->route('booking.success', $penyewaan->id)
-                ->with('error', 'Pesanan ini sedang dalam verifikasi atau sudah selesai.');
-        }
-
-        return view('pembayaran.create', compact('penyewaan'));
+        // Set konfigurasi Midtrans
+        Config::$serverKey = config('services.midtrans.server_key');
+        Config::$isProduction = config('services.midtrans.is_production');
+        Config::$isSanitized = config('services.midtrans.is_sanitized');
+        Config::$is3ds = config('services.midtrans.is_3ds');
     }
 
-    public function store(Request $request)
+    public function create($id)
     {
-        $request->validate([
-            'id_penyewaan' => 'required|exists:penyewaan,id',
-            'metode_bayar' => 'required|string',
-            'jumlah_bayar' => 'required|numeric|min:0',
-            'bukti_bayar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'tgl_bayar' => 'required|date',
-        ]);
+        $penyewaan = Penyewaan::with(['pelanggan', 'motor', 'details.tambahan'])->findOrFail($id);
 
-        $penyewaan = Penyewaan::findOrFail($request->id_penyewaan);
-
-        // Verify that payment matches booking total exactly
-        if ((float) $request->jumlah_bayar !== (float) $penyewaan->total_biaya) {
-            return back()->withErrors(['jumlah_bayar' => 'Jumlah bayar tidak sesuai dengan tagihan booking.'])->withInput();
+        // Cek jika sudah lunas
+        $cekPembayaran = Pembayaran::where('id_penyewaan', $id)->first();
+        if ($cekPembayaran && $cekPembayaran->status_pembayaran == 'Lunas') {
+            return redirect()->route('pembayaran.success', $id);
         }
 
-        // Handle File Upload
-        $path = null;
-        if ($request->hasFile('bukti_bayar')) {
-            // Define unique filename
-            $filename = 'bukti_' . time() . '_' . $penyewaan->id . '.' . $request->bukti_bayar->extension();
+        // Buat Order ID unik
+        $orderId = 'BT-' . $penyewaan->id . '-' . time();
 
-            // Move file to public/bukti_bayar
-            $request->bukti_bayar->move(public_path('bukti_bayar'), $filename);
+        // Parameter Transaksi Midtrans
+        $params = [
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => (int) $penyewaan->total_biaya,
+            ],
+            'customer_details' => [
+                'first_name' => $penyewaan->pelanggan->nama_lengkap,
+                'email' => $penyewaan->pelanggan->email,
+                'phone' => $penyewaan->pelanggan->no_wa,
+            ],
+            'item_details' => [
+                [
+                    'id' => 'MTR-' . $penyewaan->motor->id,
+                    'price' => (int) $penyewaan->motor->harga_sewa_per_hari,
+                    'quantity' => (int) $penyewaan->tgl_mulai->diffInDays($penyewaan->tgl_kembali) + 1, // Ditambah +1 agar hitungan hari tepat
+                    'name' => 'Sewa ' . $penyewaan->motor->merk_tipe,
+                ]
+            ],
+        ];
 
-            // Set URL path
-            $path = 'bukti_bayar/' . $filename;
+        // PERBAIKAN DI SINI: Loop menggunakan 'details' bukan 'detailSewa'
+        foreach ($penyewaan->details as $detail) {
+            $params['item_details'][] = [
+                'id' => 'ADD-' . $detail->tambahan->id,
+                'price' => (int) $detail->tambahan->harga_satuan,
+                'quantity' => (int) $detail->jumlah,
+                'name' => $detail->tambahan->nama_item,
+            ];
         }
 
-        // Create Pembayaran Record
-        Pembayaran::create([
-            'id_penyewaan' => $penyewaan->id,
-            'tgl_bayar' => $request->tgl_bayar,
-            'jumlah_bayar' => $request->jumlah_bayar,
-            'metode_bayar' => $request->metode_bayar,
-            'bukti_bayar_url' => $path,
-            'status_pembayaran' => 'Menunggu Verifikasi',
-            // Catatan removed from UI as per user request
-        ]);
+        // Add callback URLs for Midtrans
+        $params['callbacks'] = [
+            'finish' => route('midtrans.finish'),
+            'unfinish' => route('midtrans.unfinish'),
+            'error' => route('midtrans.error'),
+        ];
 
-        // Update Penyewaan Status
-        $penyewaan->update([
-            'status_sewa' => 'Proses Verifikasi',
-        ]);
 
-        return redirect()->route('pembayaran.success', $penyewaan->id)
-            ->with('success', 'Bukti pembayaran berhasil dikirim! Menunggu verifikasi admin.');
+        // Dapatkan Snap Token
+        try {
+            $snapToken = Snap::getSnapToken($params);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghubungkan ke payment gateway: ' . $e->getMessage());
+        }
+
+        return view('pembayaran.create', compact('penyewaan', 'snapToken'));
+    }
+
+    public function store(Request $request, $id)
+    {
+        $json = json_decode($request->get('payment_result'), true);
+        $penyewaan = Penyewaan::findOrFail($id);
+
+        // Cek status transaksi dari response JSON Midtrans
+        $status = $json['transaction_status'] ?? null;
+        $fraud = $json['fraud_status'] ?? null;
+
+        // Tentukan status pembayaran internal berdasarkan respon Midtrans
+        $statusPembayaran = 'Pending';
+        if ($status == 'capture' || $status == 'settlement') {
+            $statusPembayaran = 'Lunas';
+        } else if ($status == 'cancel' || $status == 'deny' || $status == 'expire') {
+            $statusPembayaran = 'Gagal';
+        }
+
+        if ($statusPembayaran == 'Lunas') {
+            Pembayaran::create([
+                'id_penyewaan' => $penyewaan->id,
+                'metode_bayar' => $json['payment_type'] ?? 'midtrans',
+                'jumlah_bayar' => $json['gross_amount'] ?? $penyewaan->total_biaya,
+                'status_pembayaran' => 'Lunas',
+                'bukti_bayar' => 'midtrans_auto',
+                // 'catatan' field dihapus sesuai struktur tabel user jika tidak ada
+                'tgl_bayar' => now(),
+            ]);
+
+            $penyewaan->update(['status_sewa' => 'Aktif']);
+
+            return redirect()->route('pembayaran.success', $id)->with('success', 'Pembayaran berhasil!');
+        }
+
+        return redirect()->back()->with('error', 'Pembayaran belum diselesaikan atau gagal.');
     }
 
     public function success($id)
     {
-        $penyewaan = Penyewaan::with(['motor', 'pembayaran'])->findOrFail($id);
+        $penyewaan = Penyewaan::findOrFail($id);
         return view('pembayaran.success', compact('penyewaan'));
     }
 }

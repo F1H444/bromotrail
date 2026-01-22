@@ -14,7 +14,7 @@
             </div>
 
             <div class="bg-white border border-zinc-200 rounded-sm shadow-sm p-8">
-                <form action="{{ route('tambahan.update', $tambahan->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('tambahan.update', $tambahan) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 

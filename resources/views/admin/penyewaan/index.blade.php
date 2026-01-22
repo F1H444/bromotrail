@@ -36,10 +36,10 @@
                                 <td class="py-4 px-4 font-mono text-sm text-center">#{{ $sewa->id }}</td>
                                 <td class="py-4 px-4">
                                     <div class="font-bold">{{ $sewa->pelanggan->nama_lengkap ?? 'Guest' }}</div>
-                                    <div class="text-xs text-zinc-500">{{ $sewa->pelanggan->no_hp ?? '-' }}</div>
+                                    <div class="text-xs text-zinc-500">{{ $sewa->pelanggan->no_wa ?? '-' }}</div>
                                 </td>
                                 <td class="py-4 px-4 text-sm">
-                                    {{ $sewa->motor->nama_motor }}
+                                    {{ $sewa->motor->merk_tipe }}
                                 </td>
                                 <td class="py-4 px-4 text-sm">
                                     <div class="flex flex-col">
@@ -86,7 +86,7 @@
                         <div>
                             <span class="font-mono text-xs text-zinc-400">#{{ $sewa->id }}</span>
                             <h3 class="font-bold text-zinc-900">{{ $sewa->pelanggan->nama_lengkap ?? 'Guest' }}</h3>
-                            <p class="text-xs text-zinc-500">{{ $sewa->pelanggan->no_hp ?? '-' }}</p>
+                            <p class="text-xs text-zinc-500">{{ $sewa->pelanggan->no_wa ?? '-' }}</p>
                         </div>
                         <span
                             class="px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-full border
@@ -100,7 +100,7 @@
 
                     <div class="mb-3 p-3 bg-zinc-50 rounded border border-zinc-100">
                         <div class="flex items-center gap-2 mb-2 font-bold text-sm text-zinc-800">
-                            <i class="fa-solid fa-motorcycle text-zinc-400"></i> {{ $sewa->motor->nama_motor }}
+                            <i class="fa-solid fa-motorcycle text-zinc-400"></i> {{ $sewa->motor->merk_tipe }}
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="flex items-center gap-1">

@@ -17,11 +17,10 @@ class Motor extends Model
         'slug',
         'plat_nomor',
         'harga_sewa_per_hari',
+        'stok',
         'status_motor',
         'gambar_url',
         'deskripsi_singkat',
-        'spek_mesin',
-        'kapasitas_tangki',
         'is_popular',
     ];
 
@@ -29,6 +28,7 @@ class Motor extends Model
     protected $casts = [
         'is_popular' => 'boolean',
         'harga_sewa_per_hari' => 'decimal:2',
+        'stok' => 'integer',
     ];
 
     /**
