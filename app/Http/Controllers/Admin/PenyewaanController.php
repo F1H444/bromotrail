@@ -35,11 +35,15 @@ class PenyewaanController extends Controller
 
         // If status changes to Dibatalkan, increment stock
         if ($oldStatus !== 'Dibatalkan' && $newStatus === 'Dibatalkan') {
-            $penyewaan->motor->increment('stok');
+            if ($penyewaan->motor) {
+                $penyewaan->motor->increment('stok');
+            }
         }
         // Optional: If status was Dibatalkan and changes back to something else, decrement stock
         elseif ($oldStatus === 'Dibatalkan' && $newStatus !== 'Dibatalkan') {
-            $penyewaan->motor->decrement('stok');
+            if ($penyewaan->motor) {
+                $penyewaan->motor->decrement('stok');
+            }
         }
 
         $penyewaan->status_sewa = $newStatus;
