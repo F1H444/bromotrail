@@ -105,9 +105,25 @@ Route::prefix('admin')->group(function () {
     Route::middleware(['auth:admin'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
 
-        // CRUD Routes
-        Route::resource('motor', App\Http\Controllers\Admin\MotorController::class);
-        Route::resource('tambahan', App\Http\Controllers\Admin\TambahanController::class);
+        // CRUD Routes - Add custom names to avoid conflict with public routes
+        Route::resource('motor', App\Http\Controllers\Admin\MotorController::class)->names([
+            'index' => 'admin.motor.index',
+            'create' => 'admin.motor.create',
+            'store' => 'admin.motor.store',
+            'show' => 'admin.motor.show',
+            'edit' => 'admin.motor.edit',
+            'update' => 'admin.motor.update',
+            'destroy' => 'admin.motor.destroy',
+        ]);
+        Route::resource('tambahan', App\Http\Controllers\Admin\TambahanController::class)->names([
+            'index' => 'admin.tambahan.index',
+            'create' => 'admin.tambahan.create',
+            'store' => 'admin.tambahan.store',
+            'show' => 'admin.tambahan.show',
+            'edit' => 'admin.tambahan.edit',
+            'update' => 'admin.tambahan.update',
+            'destroy' => 'admin.tambahan.destroy',
+        ]);
 
         // Pembayaran
         Route::get('/pembayaran', [App\Http\Controllers\Admin\PembayaranController::class, 'index'])->name('pembayaran.index');
