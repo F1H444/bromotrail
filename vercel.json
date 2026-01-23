@@ -1,7 +1,6 @@
 {
     "version": 2,
     "framework": null,
-    "outputDirectory": "public",
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.7.2"
@@ -9,7 +8,8 @@
     },
     "routes": [
         {
-            "handle": "filesystem"
+            "src": "/(css|js|images|favicon.ico|robots.txt)(.*)",
+            "dest": "/public/$1$2"
         },
         {
             "src": "/(.*)",
@@ -24,8 +24,8 @@
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
         "APP_ROUTES_CACHE": "/tmp/routes.php",
         "VIEW_COMPILED_PATH": "/tmp",
+        "CACHE_DRIVER": "array",
         "SESSION_DRIVER": "cookie",
-        "LOG_CHANNEL": "stderr",
-        "DB_CONNECTION": "mysql"
+        "LOG_CHANNEL": "stderr"
     }
 }
